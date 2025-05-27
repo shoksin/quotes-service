@@ -4,15 +4,15 @@
 
 ## Архитектура
 
-Проект следует принципам Clean Architecture и разделен на следующие слои:
+Проект следует принципам Clean Architecture и имеет следующую структуру:
 
 ```
 ├── cmd/api/                    # Точка входа в приложение
-├── config/                     # Конфигурация
+├── configs/                     # Конфигурация
 ├── internal/
 │   ├── domain/                 # Бизнес-сущности и интерфейсы
 │   ├── usecase/                # Бизнес-логика
-│   ├── repository/    # Слой доступа к данным (PostgreSQL)
+│   ├── repository/             # Слой доступа к данным (PostgreSQL)
 │   ├── delivery/http/          # HTTP handlers и middleware
 │   │   └── middleware/         # HTTP middleware
 │   └── storage/                # Подключение к базе данных
@@ -50,7 +50,7 @@
 
 1. Клонируйте репозиторий:
 ```bash
-git clone <repository-url>
+git clone https://github.com/shoksin/quotes-service
 cd quotes-service
 ```
 
@@ -254,28 +254,6 @@ docker run -p 8080:8080 \
   -e DB_USER=quotes_user \
   -e DB_PASSWORD=quotes_pass \
   quotes-service
-```
-
-## Примеры использования
-
-### Добавление нескольких цитат
-```bash
-curl -X POST http://localhost:8080/quotes \
-  -H "Content-Type: application/json" \
-  -d '{"author":"Confucius", "quote":"Life is simple, but we insist on making it complicated."}'
-
-curl -X POST http://localhost:8080/quotes \
-  -H "Content-Type: application/json" \
-  -d '{"author":"Albert Einstein", "quote":"Imagination is more important than knowledge."}'
-
-curl -X POST http://localhost:8080/quotes \
-  -H "Content-Type: application/json" \
-  -d '{"author":"Steve Jobs", "quote":"Innovation distinguishes between a leader and a follower."}'
-```
-
-### Просмотр цитат Конфуция
-```bash
-curl "http://localhost:8080/quotes?author=Confucius"
 ```
 
 ## Логирование

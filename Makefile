@@ -1,8 +1,8 @@
 open-db:
 	docker exec -it quotes_postgres psql -U quotes_user -d quotes_db
-clean-images:
+clear-images:
 	docker rmi $(shell docker images -q)
-clean-containers:
+clear-containers:
 	docker rm $(shell docker ps -aq)
 start:
 	docker-compose up -d

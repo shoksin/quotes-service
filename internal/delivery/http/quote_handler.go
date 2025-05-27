@@ -87,8 +87,11 @@ func (h *QuoteHandler) GetQuotes(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-
-	h.writeJSON(w, http.StatusOK, quotes)
+	if len(quotes) == 0 {
+		h.writeJSON(w, http.StatusOK, "No quotes found")
+	} else {
+		h.writeJSON(w, http.StatusOK, quotes)
+	}
 }
 
 // GetRandomQuote обрабатывает GET /quotes/random
