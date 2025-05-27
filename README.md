@@ -32,7 +32,7 @@ docker-compose up --build
 ├── cmd/api/                    # Точка входа в приложение
 ├── configs/                    # Конфигурация
 ├── internal/
-│   ├── domain/                 # Бизнес-сущности и интерфейсы
+│   ├── domain/                 # Бизнес-сущности
 │   ├── usecase/                # Бизнес-логика
 │   ├── repository/             # Слой доступа к данным (PostgreSQL)
 │   ├── delivery/http/          # HTTP handlers и middleware

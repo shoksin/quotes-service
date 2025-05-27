@@ -43,11 +43,12 @@ func (h *QuoteHandler) writeError(w http.ResponseWriter, status int, message str
 	h.writeJSON(w, status, ErrorResponse{Error: message})
 }
 
+// CreateQuote POST /quotes
 func (h *QuoteHandler) CreateQuote(w http.ResponseWriter, r *http.Request) {
 	var req domain.CreateQuoteRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		h.writeError(w, http.StatusBadRequest, "Invalid JSON")
+		h.writeError(w, http.StatusBadRequest, domain.MsgInvalidJSON)
 		return
 	}
 
@@ -57,7 +58,7 @@ func (h *QuoteHandler) CreateQuote(w http.ResponseWriter, r *http.Request) {
 		case domain.ErrInvalidAuthor, domain.ErrInvalidQuote:
 			h.writeError(w, http.StatusBadRequest, err.Error())
 		default:
-			h.writeError(w, http.StatusInternalServerError, "Failed to create quote")
+			h.writeError(w, http.StatusInternalServerError, domain.MsgFailedCreateQuote)
 		}
 		return
 	}
@@ -65,7 +66,7 @@ func (h *QuoteHandler) CreateQuote(w http.ResponseWriter, r *http.Request) {
 	h.writeJSON(w, http.StatusCreated, quote)
 }
 
-// GetQuotes обрабатывает GET /quotes с опциональным фильтром ?author=Name
+// GetQuotes GET /quotes с опциональным фильтром ?author=Name
 func (h *QuoteHandler) GetQuotes(w http.ResponseWriter, r *http.Request) {
 	author := r.URL.Query().Get("author")
 
@@ -83,26 +84,26 @@ func (h *QuoteHandler) GetQuotes(w http.ResponseWriter, r *http.Request) {
 		case domain.ErrInvalidAuthor:
 			h.writeError(w, http.StatusBadRequest, err.Error())
 		default:
-			h.writeError(w, http.StatusInternalServerError, "Failed to get quotes")
+			h.writeError(w, http.StatusInternalServerError, domain.MsgFailedGetQuotes)
 		}
 		return
 	}
 	if len(quotes) == 0 {
-		h.writeJSON(w, http.StatusOK, "No quotes found")
+		h.writeJSON(w, http.StatusOK, struct{}{})
 	} else {
 		h.writeJSON(w, http.StatusOK, quotes)
 	}
 }
 
-// GetRandomQuote обрабатывает GET /quotes/random
+// GetRandomQuote GET /quotes/random
 func (h *QuoteHandler) GetRandomQuote(w http.ResponseWriter, r *http.Request) {
 	quote, err := h.quoteUseCase.GetRandomQuote()
 	if err != nil {
 		switch err {
 		case domain.ErrNoQuotesFound:
-			h.writeError(w, http.StatusNotFound, "No quotes found")
+			h.writeError(w, http.StatusNotFound, domain.MsgQuotesNotFound)
 		default:
-			h.writeError(w, http.StatusInternalServerError, "Failed to get random quote")
+			h.writeError(w, http.StatusInternalServerError, domain.MsgFailedGetRandomQuote)
 		}
 		return
 	}
@@ -110,13 +111,13 @@ func (h *QuoteHandler) GetRandomQuote(w http.ResponseWriter, r *http.Request) {
 	h.writeJSON(w, http.StatusOK, quote)
 }
 
-// DeleteQuote обрабатывает DELETE /quotes/{id}
+// DeleteQuote DELETE /quotes/{id}
 func (h *QuoteHandler) DeleteQuote(w http.ResponseWriter, r *http.Request) {
 	idStr := strings.TrimPrefix(r.URL.Path, "/quotes/")
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		h.writeError(w, http.StatusBadRequest, "Invalid quote ID")
+		h.writeError(w, http.StatusBadRequest, domain.MsgInvalidQuoteID)
 		return
 	}
 
@@ -126,9 +127,9 @@ func (h *QuoteHandler) DeleteQuote(w http.ResponseWriter, r *http.Request) {
 		case domain.ErrInvalidID:
 			h.writeError(w, http.StatusBadRequest, err.Error())
 		case domain.ErrQuoteNotFound:
-			h.writeError(w, http.StatusNotFound, "Quote not found")
+			h.writeError(w, http.StatusNotFound, domain.MsgQuotesNotFound)
 		default:
-			h.writeError(w, http.StatusInternalServerError, "Failed to delete quote")
+			h.writeError(w, http.StatusInternalServerError, domain.MsgFailedDeleteQuote)
 		}
 		return
 	}
@@ -152,6 +153,14 @@ func HealthCheck(w http.ResponseWriter, r *http.Request) {
 func (h *QuoteHandler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/health", HealthCheck)
 
+	mux.HandleFunc("/quotes/random", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			h.GetRandomQuote(w, r)
+		} else {
+			h.writeError(w, http.StatusMethodNotAllowed, "Method not allowed")
+		}
+	})
+
 	mux.HandleFunc("/quotes", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
@@ -163,16 +172,7 @@ func (h *QuoteHandler) RegisterRoutes(mux *http.ServeMux) {
 		}
 	})
 
-	mux.HandleFunc("/quotes/random", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodGet {
-			h.GetRandomQuote(w, r)
-		} else {
-			h.writeError(w, http.StatusMethodNotAllowed, "Method not allowed")
-		}
-	})
-
-	mux.HandleFunc("/quotes/", func(w http.ResponseWriter, r *http.Request) {
-		// всё, что начинается с "/quotes/" попадёт сюда
+	mux.HandleFunc("/quotes/{id}", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodDelete {
 			h.DeleteQuote(w, r)
 		} else {
