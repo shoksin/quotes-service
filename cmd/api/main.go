@@ -32,7 +32,6 @@ func main() {
 	wrapped := middleware.LoggingMiddleware(router)
 
 	addr := ":" + cfg.Server.Port
-	log.Printf("Server starting on port %s", cfg.Server.Port)
 
 	server := &http.Server{
 		Addr:         addr,
@@ -42,6 +41,7 @@ func main() {
 		IdleTimeout:  60 * time.Second,
 	}
 
+	log.Printf("Server listening on port %s", cfg.Server.Port)
 	if err = server.ListenAndServe(); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}

@@ -9,7 +9,7 @@
 - Docker
 - Docker Compose
 
-### Запуск
+### Запуск:
 
 1. Клонируйте репозиторий:
 ```bash
@@ -17,12 +17,38 @@ git clone https://github.com/shoksin/quotes-service
 cd quotes-service
 ```
 
-2. Запустите приложение с помощью Docker Compose:
+2. Скопируйте переменные окружения:
+```
+cp .env.example .env
+```
+
+### 1-ый способ: docker-compose:
+3. Запустите приложение с помощью docker-compose:
 ```bash
 docker-compose up --build
 ```
 
-Приложение будет доступно по адресу `http://localhost:8080`
+### 2-ой способ Docker:
+3. Запустите базу данных c помощью Docker:
+```bash
+docker run --name quotes_postgres \
+  -e POSTGRES_DB=quotes_db \
+  -e POSTGRES_USER=quotes_user \
+  -e POSTGRES_PASSWORD=quotes_pass \
+  -p 5432:5432 \
+  -d postgres:15-alpine
+```
+4. Установите зависимости:
+```bash
+go mod download
+```
+
+5. Запустите программу:
+```bash
+go run cmd/api/main.go
+```
+
+### Приложение будет доступно по адресу `http://localhost:8080`
 
 ## Архитектура
 
@@ -164,30 +190,6 @@ Health Check endpoint
   "status": "healthy",
   "service": "quotes-service"
 }
-```
-
-## Разработка
-
-### Локальная разработка
-
-1. Запустите PostgreSQL:
-```bash
-docker run --name quotes_postgres \
-  -e POSTGRES_DB=quotes_db \
-  -e POSTGRES_USER=quotes_user \
-  -e POSTGRES_PASSWORD=quotes_pass \
-  -p 5432:5432 \
-  -d postgres:15-alpine
-```
-
-2. Установите зависимости:
-```bash
-go mod download
-```
-
-3. Запустите приложение:
-```bash
-go run cmd/api/main.go
 ```
 
 ### Тестирование
