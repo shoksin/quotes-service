@@ -17,7 +17,7 @@ git clone https://github.com/shoksin/quotes-service
 cd quotes-service
 ```
 
-2. Скопируйте переменные окружения:
+2. Скопируйте переменные окружения (и поменяйте при необходимости):
 ```
 cp .env.example .env
 ```
