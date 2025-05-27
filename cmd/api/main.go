@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/shoksin/quotes-service/internal/config"
+	"github.com/shoksin/quotes-service/configs"
 	handler "github.com/shoksin/quotes-service/internal/delivery/http"
 	"github.com/shoksin/quotes-service/internal/delivery/http/middleware"
 	"github.com/shoksin/quotes-service/internal/repository"
@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	cfg := config.Load()
+	cfg := configs.Load()
 
 	db, err := storage.NewPostgresConnection(cfg.Database)
 	if err != nil {
@@ -30,7 +30,7 @@ func main() {
 	router := http.NewServeMux()
 	quoteHandler.RegisterRoutes(router)
 	wrapped := middleware.LoggingMiddleware(router)
-	
+
 	addr := ":" + cfg.Server.Port
 	log.Printf("Server starting on port %s", cfg.Server.Port)
 

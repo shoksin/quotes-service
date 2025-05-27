@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
-	"github.com/shoksin/quotes-service/internal/config"
+	"github.com/shoksin/quotes-service/configs"
 )
 
-func NewPostgresConnection(databaseConfig config.DatabaseConfig) (*sql.DB, error) {
+func NewPostgresConnection(databaseConfig configs.DatabaseConfig) (*sql.DB, error) {
 	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", databaseConfig.Host, databaseConfig.Port, databaseConfig.User, databaseConfig.Password, databaseConfig.Name)
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {

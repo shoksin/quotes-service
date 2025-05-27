@@ -1,6 +1,32 @@
-version: "3.9"
+version: '3.8'
 
 services:
-  quotes-service:
+  postgres:
+    image: postgres:15-alpine
+    container_name: quotes_postgres
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quotes_user -d quotes_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    container_name: quotes_api
     ports:
       - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
