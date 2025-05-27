@@ -5,6 +5,7 @@ import (
 	"fmt"
 	_ "github.com/lib/pq"
 	"github.com/shoksin/quotes-service/configs"
+	"log"
 )
 
 func NewPostgresConnection(databaseConfig configs.DatabaseConfig) (*sql.DB, error) {
@@ -17,5 +18,6 @@ func NewPostgresConnection(databaseConfig configs.DatabaseConfig) (*sql.DB, erro
 	if err = db.Ping(); err != nil {
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
+	log.Printf("successfully connected to database %s", databaseConfig.Name)
 	return db, nil
 }
