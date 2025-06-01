@@ -48,7 +48,7 @@ go mod download
 go run cmd/api/main.go
 ```
 
-### Приложение будет доступно по адресу `http://localhost:8081`
+### Приложение будет доступно по адресу `http://localhost:8080`
 
 ## Архитектура
 
